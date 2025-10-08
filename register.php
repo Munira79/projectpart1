@@ -51,8 +51,16 @@
                     <input type="email" class="form-control" id="email" name="email" required>
                 </div>
                 <div class="mb-3">
-                    <label for="phone" class="form-label">Phone Number (optional)</label>
-                    <input type="tel" class="form-control" id="phone" name="phone">
+                    <label for="student_id" class="form-label">Student ID</label>
+                    <input type="text" class="form-control" id="student_id" name="student_id" placeholder="Enter your student ID" required>
+                </div>
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select class="form-select" id="role" name="role" required>
+                        <option value="student">Student</option>
+                        <option value="admin">Student (CR)</option>
+                        <option value="teacher">Teacher</option>
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>

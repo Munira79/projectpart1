@@ -12,35 +12,67 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Pacifico&display=swap" rel="stylesheet" />
 
   <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-color: #1f2937;
+      --card-bg: white;
+      --navbar-bg: white;
+      --footer-bg: #e5e7eb;
+      --footer-text: #4b5563;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1f2937;
+      --text-color: #f9fafb;
+      --card-bg: #374151;
+      --navbar-bg: #374151;
+      --footer-bg: #111827;
+      --footer-text: #9ca3af;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f8fafc;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
+    
     .logo {
       font-family: 'Pacifico', cursive;
     }
+    
+    .navbar {
+      background-color: var(--navbar-bg) !important;
+      transition: background-color 0.3s ease;
+    }
+    
     .hero {
       background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: white;
       padding: 80px 0;
     }
+    
     .feature-card {
-      background: white;
+      background: var(--card-bg);
       border-radius: 16px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       padding: 24px;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, background-color 0.3s ease;
     }
+    
     .feature-card:hover {
       transform: translateY(-5px);
     }
+    
     .stats-box {
-      background: white;
+      background: var(--card-bg);
       border-radius: 16px;
       padding: 24px;
       text-align: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: background-color 0.3s ease;
     }
+    
     .cta-section {
       background: linear-gradient(to right, #10b981, #34d399);
       color: white;
@@ -49,11 +81,42 @@
       text-align: center;
       margin: 40px 0;
     }
+    
     footer {
-      background: #e5e7eb;
+      background: var(--footer-bg);
       padding: 20px 0;
       text-align: center;
-      color: #4b5563;
+      color: var(--footer-text);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background-color: rgba(0,0,0,0.1);
+    }
+
+    [data-theme="dark"] .theme-toggle:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 40px 0;
+      }
+      
+      .feature-card {
+        margin-bottom: 20px;
+      }
     }
   </style>
 </head>
@@ -69,18 +132,51 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="quotes.php">Quotes</a></li>
-          <li class="nav-item"><a class="nav-link" href="exams.php">Exam Reminders</a></li>
-          <li class="nav-item"><a class="nav-link" href="tracker.php">Work Tracker</a></li>
-          <li class="nav-item"><a class="nav-link" href="notes.php">Notes</a></li>
+          <li class="nav-item">
+            <?php if(isset($_SESSION['user_id'])): ?>
+              <a class="nav-link" href="tracker.php">Work Tracker</a>
+            <?php else: ?>
+              <a class="nav-link" href="#" onclick="showLoginMessage()">Work Tracker</a>
+            <?php endif; ?>
+          </li>
+          <li class="nav-item">
+            <?php if(isset($_SESSION['user_id'])): ?>
+              <a class="nav-link" href="exams.php">Exam Schedule</a>
+            <?php else: ?>
+              <a class="nav-link" href="#" onclick="showLoginMessage()">Exam Schedule</a>
+            <?php endif; ?>
+          </li>
+          <li class="nav-item">
+            <?php if(isset($_SESSION['user_id'])): ?>
+              <a class="nav-link" href="quotes.php">Motivational Quotes</a>
+            <?php else: ?>
+              <a class="nav-link" href="#" onclick="showLoginMessage()">Motivational Quotes</a>
+            <?php endif; ?>
+          </li>
+          <li class="nav-item">
+            <?php if(isset($_SESSION['user_id'])): ?>
+              <a class="nav-link" href="view_notes.php">Notes</a>
+            <?php else: ?>
+              <a class="nav-link" href="#" onclick="showLoginMessage()">Notes</a>
+            <?php endif; ?>
+          </li>
+          <li class="nav-item">
+            <?php if(isset($_SESSION['user_id'])): ?>
+              <a class="nav-link" href="profile.php">Profile</a>
+            <?php else: ?>
+              <a class="nav-link" href="#" onclick="showLoginMessage()">Profile</a>
+            <?php endif; ?>
+          </li>
 
+          <li class="nav-item">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+          </li>
           <?php if(isset($_SESSION['user_id'])): ?>
             <!-- If logged in -->
-            <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
             <li class="nav-item"><a class="btn btn-danger ms-3" href="logout.php">Logout</a></li>
           <?php else: ?>
             <!-- If not logged in -->
-            <li class="nav-item"><a class="btn btn-primary ms-3" href="login.php">Login</a></li>
+            <li class="nav-item"><a class="btn btn-primary ms-3" href="identify.php">Login</a></li>
           <?php endif; ?>
         </ul>
       </div>
@@ -261,5 +357,54 @@
 
   <!-- Bootstrap Script -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Custom JavaScript -->
+  <script>
+    // Show login message for non-logged in users
+    function showLoginMessage() {
+      alert('Please login first to access this feature!');
+    }
+
+    // Dark/Light mode toggle
+    function toggleTheme() {
+      const body = document.body;
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      // Update toggle button text
+      const toggleBtn = document.getElementById('themeToggle');
+      if (toggleBtn) {
+        toggleBtn.textContent = newTheme === 'light' ? '🌙' : '☀️';
+      }
+    }
+
+    // Initialize theme on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.body.setAttribute('data-theme', savedTheme);
+      
+      const toggleBtn = document.getElementById('themeToggle');
+      if (toggleBtn) {
+        toggleBtn.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+      }
+    });
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+  </script>
 </body>
 </html>

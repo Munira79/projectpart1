@@ -5,9 +5,10 @@ include 'db_config.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $email = $_POST['email'];
-    $phone = isset($_POST['phone']) ? $_POST['phone'] : null;
+    $student_id = $_POST['student_id'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
+    $role = $_POST['role']; // Get role from form
 
     // Check if passwords match
     if ($password !== $confirm_password) {
@@ -33,13 +34,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Insert new user into database
-    $sql_insert = "INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)";
+    $sql_insert = "INSERT INTO users (name, email, student_id, password, role) VALUES (?, ?, ?, ?, ?)";
     $stmt_insert = $conn->prepare($sql_insert);
-    $stmt_insert->bind_param("ssss", $name, $email, $phone, $hashed_password);
+    $stmt_insert->bind_param("sssss", $name, $email, $student_id, $hashed_password, $role);
 
     if ($stmt_insert->execute()) {
         $_SESSION['reg_success'] = "Registration successful! You can now log in.";
-        header("Location: login.php");
+        header("Location: login.php?role=" . urlencode($role));
         exit();
     } else {
         $_SESSION['reg_error'] = "Registration failed. Please try again.";

@@ -75,7 +75,15 @@ if (isset($_SESSION['user_id'])) {
         <div class="login-card">
             <div class="login-form-section">
                 <h2 class="mb-2 fw-semibold">Sign in</h2>
-                <p class="text-muted mb-4">Built for busy students like you.</p>
+                <p class="text-muted mb-4">
+                    <?php 
+                    $role = isset($_GET['role']) ? $_GET['role'] : 'user';
+                    if($role == 'student') echo 'Student Login - Access your study materials';
+                    elseif($role == 'admin') echo 'Student (CR) Login - Manage class content';
+                    elseif($role == 'teacher') echo 'Teacher Login - Access teaching tools';
+                    else echo 'Built for busy students like you.';
+                    ?>
+                </p>
 
                 <?php if (isset($_SESSION['login_error'])): ?>
                     <div class="alert alert-danger" role="alert">
@@ -84,6 +92,7 @@ if (isset($_SESSION['user_id'])) {
                 <?php endif; ?>
 
                 <form action="login_process.php" method="POST">
+                    <input type="hidden" name="role" value="<?php echo htmlspecialchars($role); ?>">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
@@ -99,8 +108,12 @@ if (isset($_SESSION['user_id'])) {
 
                 <div class="text-center my-3 text-muted">or sign in with</div>
                 <div class="d-flex justify-content-center social-icons">
-                    <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google"></a>
-                    <a href="#"><img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple"></a>
+                    <a href="#" class="btn btn-outline-danger me-2" onclick="alert('Google login coming soon!')">
+                        <i class="ri-google-fill me-2"></i>Google
+                    </a>
+                    <a href="#" class="btn btn-outline-dark" onclick="alert('GitHub login coming soon!')">
+                        <i class="ri-github-fill me-2"></i>GitHub
+                    </a>
                 </div>
 
                 <div class="mt-4 text-center">

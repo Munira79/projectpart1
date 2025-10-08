@@ -85,26 +85,32 @@
         <h1 class="display-5 fw-bold mb-3">Welcome to FocusBridge!</h1>
         <p class="lead mb-5 text-muted">Please select your role to continue to your personalized dashboard.</p>
 
+        <?php if (isset($_SESSION['role_error'])): ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo $_SESSION['role_error']; unset($_SESSION['role_error']); ?>
+            </div>
+        <?php endif; ?>
+
         <div class="row g-4">
             <div class="col-md-4">
-                <a href="set_role.php?role=student" class="card-option">
+                <a href="login.php?role=student" class="card-option">
                     <i class="ri-user-2-line icon"></i>
                     <h3>Student</h3>
-                    <p class="text-muted text-center">Manage your classes, exams, and notes.</p>
+                    <p class="text-muted text-center">Access your study materials, track progress, and view exams.</p>
                 </a>
             </div>
             <div class="col-md-4">
-                <a href="set_role.php?role=admin" class="card-option">
+                <a href="login.php?role=admin" class="card-option">
                     <i class="ri-user-star-line icon"></i>
                     <h3>Student (CR)</h3>
-                    <p class="text-muted text-center">Student with class representative privileges.</p>
+                    <p class="text-muted text-center">Class representative with admin privileges to manage content.</p>
                 </a>
             </div>
             <div class="col-md-4">
-                <a href="set_role.php?role=admin" class="card-option">
+                <a href="login.php?role=teacher" class="card-option">
                     <i class="ri-briefcase-line icon"></i>
                     <h3>Teacher</h3>
-                    <p class="text-muted text-center">Access and manage class-related information.</p>
+                    <p class="text-muted text-center">Access and manage class-related information and content.</p>
                 </a>
             </div>
         </div>
