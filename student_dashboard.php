@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'student') {
     exit();
 }
 
-$user_name = $_SESSION['user_name'];
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
     $user_id = $_SESSION['user_id'];
 
 // Get user's study statistics
@@ -69,34 +69,47 @@ $upcoming_exams = $conn->query("SELECT COUNT(*) as count FROM exams WHERE exam_d
         }
         
         .feature-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 30px;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            height: 100%;
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-            color: inherit;
-            text-decoration: none;
-        }
-        
-        .feature-card .icon {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-            transition: color 0.3s ease;
-        }
-        
-        .feature-card:hover .icon {
-            transform: scale(1.1);
-        }
-        
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    overflow: hidden;
+    white-space: nowrap; /* prevent icon or text breaking */
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ICON STYLING */
+.feature-card .icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: #f8f9fa; /* light neutral background */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    white-space: nowrap; /* ensures icon doesn’t wrap or distort */
+    overflow: hidden; /* prevents resizing glitches */
+}
+
+.feature-card:hover .icon {
+    transform: scale(1.1);
+}
         .stats-card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -318,6 +331,28 @@ $upcoming_exams = $conn->query("SELECT COUNT(*) as count FROM exams WHERE exam_d
                     <i class="ri-user-settings-line icon text-secondary"></i>
                     <h5 class="fw-bold mb-3">Profile</h5>
                     <p class="text-muted">View and manage your profile information and preferences.</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <a href="view_lectures.php" class="feature-card">
+                    <i class="ri-book-open-line icon text-danger"></i>
+                    <h5 class="fw-bold mb-3">Lecture</h5>
+                    <p class="text-muted">View class Lecture.</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <a href="view_assignments.php" class="feature-card">
+                    <i class="ri-file-list-3-line icon text-danger"></i>
+                    <h5 class="fw-bold mb-3">Assignment</h5>
+                    <p class="text-muted">upcoming assignment.</p>
+                </a>
+            </div>
+
+             <div class="col-md-6 col-lg-4">
+                <a href="view_result.php" class="feature-card">
+                    <i class="ri-file-chart-line icon text-danger"></i>
+                    <h5 class="fw-bold mb-3">Result</h5>
+                    <p class="text-muted">check your Result.</p>
                 </a>
             </div>
         </div>

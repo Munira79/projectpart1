@@ -9,7 +9,8 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'admin' && $_SES
 }
 
 $user_id = $_SESSION['user_id'];
-$user_name = $_SESSION['user_name'];
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
+
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_quote'])) {

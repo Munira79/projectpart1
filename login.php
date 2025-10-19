@@ -99,8 +99,13 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
-                    </div>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="ri-eye-line" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        </div>
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-primary py-2 fw-bold">Continue</button>
                     </div>
@@ -134,5 +139,33 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const password = document.getElementById('password');
+            const togglePassword = document.getElementById('togglePassword');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            // Check if all elements exist before adding the listener to prevent runtime errors
+            if (togglePassword && password && toggleIcon) {
+                togglePassword.addEventListener('click', function (e) {
+                    // Toggle the type attribute
+                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                    password.setAttribute('type', type);
+                    
+                    // Toggle the eye icon class
+                    if (type === 'text') {
+                        // Show password: switch icon to 'eye-off' (hidden)
+                        toggleIcon.classList.remove('ri-eye-line');
+                        toggleIcon.classList.add('ri-eye-off-line');
+                    } else {
+                        // Hide password: switch icon to 'eye' (visible)
+                        toggleIcon.classList.remove('ri-eye-off-line');
+                        toggleIcon.classList.add('ri-eye-line');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

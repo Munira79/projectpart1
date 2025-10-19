@@ -51,7 +51,7 @@
                     <input type="email" class="form-control" id="email" name="email" required>
                 </div>
                 <div class="mb-3">
-                    <label for="student_id" class="form-label">Student ID</label>
+                    <label for="student_id" class="form-label" id="id_label">Student ID</label>
                     <input type="text" class="form-control" id="student_id" name="student_id" placeholder="Enter your student ID" required>
                 </div>
                 <div class="mb-3">
@@ -81,5 +81,24 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleSelect = document.getElementById('role');
+            const idLabel = document.getElementById('id_label');
+            const studentIdInput = document.getElementById('student_id');
+            
+            roleSelect.addEventListener('change', function() {
+                if (this.value === 'teacher') {
+                    idLabel.textContent = 'Teacher ID';
+                    studentIdInput.placeholder = 'Enter your teacher ID';
+                    studentIdInput.name = 'teacher_id';
+                } else {
+                    idLabel.textContent = 'Student ID';
+                    studentIdInput.placeholder = 'Enter your student ID';
+                    studentIdInput.name = 'student_id';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

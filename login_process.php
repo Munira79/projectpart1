@@ -6,13 +6,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Special check for admin credentials
+    // ✅ Special check for admin credentials
     if ($email === 'admin' && $password === 'admin') {
         // Set session for admin
         $_SESSION['user_id'] = 1; // Assuming admin is user ID 1
         $_SESSION['user_email'] = 'admin';
         $_SESSION['user_role'] = 'admin';
-        header("Location: dashboard.php");
+        // ✅ Redirect to admin dashboard
+        header("Location: admin_dashboard.php");
         exit();
     }
 
@@ -32,7 +33,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_role'] = $user['role'];
 
-            header("Location: identify.php");
+            // ✅ Redirect based on role
+            if ($user['role'] === 'admin') {
+                header("Location: admin_dashboard.php");
+            }
+            elseif ($user['role'] === 'student') {
+                header("Location: student_dashboard.php");
+            }
+            elseif ($user['role'] === 'teacher') {
+                header("Location: teacher_dashboard.php");
+            }
+            else {
+                header("Location: identify.php");
+            }
             exit();
         } else {
             // Password incorrect

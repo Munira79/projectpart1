@@ -5,10 +5,14 @@ include 'db_config.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $email = $_POST['email'];
-    $student_id = $_POST['student_id'];
+    $student_id = isset($_POST['student_id']) ? $_POST['student_id'] : '';
+    $teacher_id = isset($_POST['teacher_id']) ? $_POST['teacher_id'] : '';
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
     $role = $_POST['role']; // Get role from form
+    
+    // Use appropriate ID based on role
+    $user_id_field = ($role === 'teacher') ? $teacher_id : $student_id;
 
     // Check if passwords match
     if ($password !== $confirm_password) {
@@ -36,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Insert new user into database
     $sql_insert = "INSERT INTO users (name, email, student_id, password, role) VALUES (?, ?, ?, ?, ?)";
     $stmt_insert = $conn->prepare($sql_insert);
-    $stmt_insert->bind_param("sssss", $name, $email, $student_id, $hashed_password, $role);
+    $stmt_insert->bind_param("sssss", $name, $email, $user_id_field, $hashed_password, $role);
 
     if ($stmt_insert->execute()) {
         $_SESSION['reg_success'] = "Registration successful! You can now log in.";

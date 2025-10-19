@@ -70,3 +70,4 @@ INSERT INTO quotes (quote_text, author, category, created_by) VALUES
 -- =============================================
 -- END OF MANUAL INDEXES AND DATA
 -- =============================================
+

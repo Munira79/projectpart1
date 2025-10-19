@@ -2,7 +2,7 @@
 session_start();
 include('db_config.php');
 // A user must be logged in and their role must be set as 'admin'
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin')  {
     header('location: login.php'); // Redirect to login if not authenticated or not an admin
     exit();
 }
@@ -28,15 +28,17 @@ if (isset($_POST['upload_notes'])) {
     }
 
     if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-        $sql = "INSERT INTO notes (user_id, subject, title, description, tags, file_path, file_type) VALUES ('$user_id', '$subject', '$title', '$description', '$tags', '$target_file', '$file_type')";
+        // ✅ FIXED: user_id → uploaded_by
+        $sql = "INSERT INTO notes (uploaded_by, subject, title, description, tags, file_path, file_type) 
+                VALUES ('$user_id', '$subject', '$title', '$description', '$tags', '$target_file', '$file_type')";
         
         if (mysqli_query($conn, $sql)) {
-            $_SESSION['success_message'] = "Note uploaded successfully! 🎉";
+            $_SESSION['success_message'] = 'Note uploaded successfully! 🎉';
         } else {
-            $_SESSION['error_message'] = "Error: " . mysqli_error($conn);
+            $_SESSION['error_message'] = 'Error: ' . mysqli_error($conn);
         }
     } else {
-        $_SESSION['error_message'] = "Sorry, there was an error uploading your file.";
+        $_SESSION['error_message'] = 'Sorry, there was an error uploading your file.';
     }
 }
 
@@ -44,29 +46,30 @@ if (isset($_POST['upload_notes'])) {
 if (isset($_GET['delete_id'])) {
     $delete_id = mysqli_real_escape_string($conn, $_GET['delete_id']);
     
-    // Ensure the user owns the note and delete the file from the server
-    $file_query = "SELECT file_path FROM notes WHERE id='$delete_id' AND user_id='$user_id'";
+    // ✅ FIXED: user_id → uploaded_by
+    $file_query = "SELECT file_path FROM notes WHERE id='$delete_id' AND uploaded_by='$user_id'";
     $file_result = mysqli_query($conn, $file_query);
     $note = mysqli_fetch_assoc($file_result);
 
     if ($note) {
         if (unlink($note['file_path'])) {
-            $delete_sql = "DELETE FROM notes WHERE id='$delete_id' AND user_id='$user_id'";
+            // ✅ FIXED: user_id → uploaded_by
+            $delete_sql = "DELETE FROM notes WHERE id='$delete_id' AND uploaded_by='$user_id'";
             if (mysqli_query($conn, $delete_sql)) {
-                $_SESSION['success_message'] = "Note deleted successfully! 👍";
+                $_SESSION['success_message'] = 'Note deleted successfully! 👍';
             } else {
-                $_SESSION['error_message'] = "Error: " . mysqli_error($conn);
+                $_SESSION['error_message'] = 'Error: ' . mysqli_error($conn);
             }
         } else {
-            $_SESSION['error_message'] = "Error deleting file from server.";
+            $_SESSION['error_message'] = 'Error deleting file from server.';
         }
     }
-    header('location: notesupload.php');
+    header('location: notes_upload.php');
     exit();
 }
 
-// Fetch notes with search/filter functionality
-$where_clauses = ["user_id='$user_id'"];
+// ✅ FIXED: user_id → uploaded_by
+$where_clauses = ["uploaded_by='$user_id'"];
 
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search = mysqli_real_escape_string($conn, $_GET['search']);
@@ -81,7 +84,8 @@ if (isset($_GET['subject_filter']) && !empty($_GET['subject_filter'])) {
 $notes_query = "SELECT * FROM notes WHERE " . implode(" AND ", $where_clauses) . " ORDER BY upload_date DESC";
 $notes_result = mysqli_query($conn, $notes_query);
 
-$subjects_query = "SELECT DISTINCT subject FROM notes WHERE user_id='$user_id'";
+// ✅ FIXED: user_id → uploaded_by
+$subjects_query = "SELECT DISTINCT subject FROM notes WHERE uploaded_by='$user_id'";
 $subjects_result = mysqli_query($conn, $subjects_query);
 ?>
 
@@ -118,7 +122,7 @@ $subjects_result = mysqli_query($conn, $subjects_query);
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item"><a class="nav-link" href="admin_dashboard.php">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link active" href="notesupload.php">Notes Manager</a></li>
+            <li class="nav-item"><a class="nav-link active" href="notes_upload.php">Notes Manager</a></li>
             <li class="nav-item"><a class="btn btn-primary ms-3" href="logout.php">Logout</a></li>
           </ul>
         </div>
@@ -147,7 +151,7 @@ $subjects_result = mysqli_query($conn, $subjects_query);
             </div>
         <?php endif; ?>
 
-        <form action="notesupload.php" method="get" class="mb-5">
+        <form action="notes_upload.php" method="get" class="mb-5">
             <div class="row g-3">
                 <div class="col-md-8">
                     <input type="text" class="form-control" placeholder="Search notes by title or tags..." name="search" value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
@@ -225,7 +229,7 @@ $subjects_result = mysqli_query($conn, $subjects_query);
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="notesupload.php" method="post" enctype="multipart/form-data">
+                    <form action="notes_upload.php" method="post" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="title" class="form-label">Note Title</label>
                             <input type="text" class="form-control" id="title" name="title" required>
@@ -268,7 +272,7 @@ $subjects_result = mysqli_query($conn, $subjects_query);
 
         function confirmDelete(id) {
             if (confirm("Are you sure you want to delete this note?")) {
-                window.location.href = 'notesupload.php?delete_id=' + id;
+                window.location.href = 'notes_upload.php?delete_id=' + id;
             }
         }
     </script>

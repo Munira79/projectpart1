@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$user_name = $_SESSION['user_name'];
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
 
 // Get filter parameters
 $priority_filter = isset($_GET['priority']) ? $_GET['priority'] : '';

@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'admin' && $_SES
     exit();
 }
 
-$user_name = $_SESSION['user_name'];
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
 $user_role = $_SESSION['user_role'];
 ?>
 <!DOCTYPE html>
@@ -64,34 +64,49 @@ $user_role = $_SESSION['user_role'];
         }
         
         .feature-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            padding: 30px;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            height: 100%;
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-            color: inherit;
-            text-decoration: none;
-        }
-        
-        .feature-card .icon {
-            font-size: 3.5rem;
-            color: #2563eb;
-            margin-bottom: 20px;
-            transition: color 0.3s ease;
-        }
-        
-        .feature-card:hover .icon {
-            color: #1d4ed8;
-        }
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    overflow: hidden;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ICON STYLING */
+.feature-card .icon {
+    font-size: 3rem; /* Adjusted to fit inside box */
+    color: #2563eb; /* your original icon color */
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: #f1f5ff; /* soft light-blue background */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.feature-card:hover .icon {
+    color: #1d4ed8; /* darker blue on hover */
+    transform: scale(1.1);
+    background: #e0e7ff; /* slightly darker background when hovered */
+}
+
         
         .theme-toggle {
             background: none;
@@ -286,6 +301,28 @@ $user_role = $_SESSION['user_role'];
                     <p class="text-muted">Manage your profile information, preferences, and account settings.</p>
                 </a>
             </div>
+             <div class="col-md-6 col-lg-4">
+                <a href="view_lectures.php" class="feature-card">
+                    <i class="ri-book-open-line icon text-danger"></i>
+                    <h5 class="fw-bold mb-3">Lecture</h5>
+                    <p class="text-muted">View class Lecture.</p>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <a href="view_assignments.php" class="feature-card">
+                    <i class="ri-file-list-3-line icon text-danger"></i>
+                    <h5 class="fw-bold mb-3">Assignment</h5>
+                    <p class="text-muted">upcoming assignment.</p>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <a href="view_result.php" class="feature-card">
+                    <i class="ri-file-chart-line icon text-danger"></i>
+                    <h5 class="fw-bold mb-3">Result</h5>
+                    <p class="text-muted">check your Result.</p>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -314,9 +351,9 @@ $user_role = $_SESSION['user_role'];
                 </div>
                 <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
                     <h6 class="text-uppercase mb-4 fw-bold">Contact</h6>
-                    <p><i class="ri-home-line me-3"></i> Focus Bridge HQ</p>
+                    <p><i class="ri-home-line me-3"></i> Focus Bridge Developers</p>
                     <p><i class="ri-mail-line me-3"></i> info@focusbridge.com</p>
-                    <p><i class="ri-phone-line me-3"></i> +01 234 567 89</p>
+                    <p><i class="ri-phone-line me-3"></i> 01734343434</p>
                 </div>
             </div>
             <hr class="mb-4">

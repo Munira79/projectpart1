@@ -9,7 +9,8 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$user_name = $_SESSION['user_name'];
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
+
 
 // Fetch all upcoming exams
 $exams_query = "SELECT * FROM exams WHERE exam_date >= CURDATE() AND status = 'upcoming' ORDER BY exam_date ASC, exam_time ASC";
