@@ -3,8 +3,8 @@
 -- Complete SQL for the Focus Bridge project
 
 -- Create database
-CREATE DATABASE IF NOT EXISTS `fb-sql`;
-USE `fb-sql`;
+CREATE DATABASE IF NOT EXISTS `fb-sql2`;
+USE `fb-sql2`;
 
 -- =============================================
 -- 1. USERS TABLE

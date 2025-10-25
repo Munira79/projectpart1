@@ -10,6 +10,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
     $role = $_POST['role']; // Get role from form
+    $department = $_POST['department'];
+    $batch = $_POST['batch'];
+    $section = $_POST['section'];
     
     // Use appropriate ID based on role
     $user_id_field = ($role === 'teacher') ? $teacher_id : $student_id;
@@ -38,9 +41,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Insert new user into database
-    $sql_insert = "INSERT INTO users (name, email, student_id, password, role) VALUES (?, ?, ?, ?, ?)";
+     $sql_insert = "INSERT INTO users (name, email, student_id, password, role, department, batch, section) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt_insert = $conn->prepare($sql_insert);
-    $stmt_insert->bind_param("sssss", $name, $email, $user_id_field, $hashed_password, $role);
+    $stmt_insert->bind_param("ssssssss", $name, $email, $student_id, $hashed_password, $role, $department, $batch, $section);
 
     if ($stmt_insert->execute()) {
         $_SESSION['reg_success'] = "Registration successful! You can now log in.";

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'helper_functions.php';
 
 // Check if user is logged in and has admin/teacher role
 if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'teacher')) {
@@ -10,6 +11,9 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'admin' && $_SES
 
 $user_id = $_SESSION['user_id'];
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
+
+// Get user's academic info for targeting
+$user_info = getUserInfo($conn, $user_id);
 
 // ------------------------------------------------
 // UPDATED: Handle Form Submission (Add OR Update)
@@ -26,10 +30,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // 1. Handle ADD NEW EXAM (Your original logic, slightly cleaned up)
     if (isset($_POST['add_exam'])) {
-        $sql = "INSERT INTO exams (subject, exam_type, title, description, exam_date, exam_time, duration, location, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $department = $user_info['department'];
+        $batch = $user_info['batch'];
+        $section = $user_info['section'];
+        
+        $sql = "INSERT INTO exams (subject, exam_type, title, description, exam_date, exam_time, duration, location, department, batch, section, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        // Corrected bind_param for your table schema: ssssssiis (subject, type, title, desc, date, time, duration(i), location, created_by(i))
-        $stmt->bind_param("ssssssisi", $subject, $exam_type, $title, $description, $exam_date, $exam_time, $duration, $location, $user_id);
+        // Updated bind_param to include department, batch, section
+        $stmt->bind_param("ssssssissssi", $subject, $exam_type, $title, $description, $exam_date, $exam_time, $duration, $location, $department, $batch, $section, $user_id);
         
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "Exam added successfully!";
@@ -43,13 +51,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (isset($_POST['update_exam'])) {
         $exam_id_to_update = (int)$_POST['exam_id'];
         $status = $_POST['status'] ?? 'upcoming'; 
+        $department = $user_info['department'];
+        $batch = $user_info['batch'];
+        $section = $user_info['section'];
 
         // Query to update all fields, restricting update permission to the creator
-        $sql = "UPDATE exams SET subject = ?, exam_type = ?, title = ?, description = ?, exam_date = ?, exam_time = ?, duration = ?, location = ?, status = ? WHERE id = ? AND created_by = ?";
+        $sql = "UPDATE exams SET subject = ?, exam_type = ?, title = ?, description = ?, exam_date = ?, exam_time = ?, duration = ?, location = ?, department = ?, batch = ?, section = ?, status = ? WHERE id = ? AND created_by = ?";
         $stmt = $conn->prepare($sql);
         
-        // Corrected bind_param: ssssss (strings) i (duration) s (location) s (status) i (id) i (created_by)
-        $stmt->bind_param("ssssssisisi", $subject, $exam_type, $title, $description, $exam_date, $exam_time, $duration, $location, $status, $exam_id_to_update, $user_id);
+        // Updated bind_param to include department, batch, section
+        $stmt->bind_param("ssssssissssisi", $subject, $exam_type, $title, $description, $exam_date, $exam_time, $duration, $location, $department, $batch, $section, $status, $exam_id_to_update, $user_id);
 
         if ($stmt->execute()) {
             if ($stmt->affected_rows > 0) {
@@ -85,9 +96,12 @@ if (isset($_GET['delete_id'])) {
     exit();
 }
 
-// Fetch all exams (ORIGINAL CODE)
-$exams_query = "SELECT * FROM exams ORDER BY exam_date DESC, exam_time DESC";
-$exams_result = $conn->query($exams_query);
+// Fetch only exams created by the current user
+$exams_query = "SELECT * FROM exams WHERE created_by = ? ORDER BY exam_date DESC, exam_time DESC";
+$stmt = $conn->prepare($exams_query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$exams_result = $stmt->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -225,8 +239,8 @@ $exams_result = $conn->query($exams_query);
 
     <section class="hero-section">
         <div class="container text-center">
-            <h1 class="display-4 fw-bold mb-3">Manage Exams</h1>
-            <p class="lead">Add, edit, and manage exam schedules for all students.</p>
+            <h1 class="display-4 fw-bold mb-3">Manage Your Exams</h1>
+            <p class="lead">Add, edit, and manage exam schedules for your department, batch, and section.</p>
         </div>
     </section>
 
@@ -292,6 +306,13 @@ $exams_result = $conn->query($exams_query);
                                 <label for="location" class="form-label">Location</label>
                                 <input type="text" class="form-control" id="location" name="location" placeholder="e.g., Room 101">
                             </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="ri-information-line me-2"></i>
+                            <strong>Target Audience:</strong> This exam will be visible to students from 
+                            <strong><?php echo $user_info['department'] ?? 'Your Department'; ?></strong>, 
+                            <strong>Batch <?php echo $user_info['batch'] ?? 'Your Batch'; ?></strong>, 
+                            <strong>Section <?php echo $user_info['section'] ?? 'Your Section'; ?></strong>
                         </div>
                         <button type="submit" name="add_exam" class="btn btn-primary">Add Exam</button>
                     </form>

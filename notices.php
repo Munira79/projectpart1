@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'helper_functions.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -14,8 +15,11 @@ $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION[
 // Get filter parameters
 $priority_filter = isset($_GET['priority']) ? $_GET['priority'] : '';
 
-// Build query for active notices only
-$notices_query = "SELECT * FROM notices WHERE is_active = 1";
+// Get content filter for user's department, batch, section
+$content_filter = getContentFilter($conn, $user_id);
+
+// Build query for active notices only with content filtering
+$notices_query = "SELECT * FROM notices WHERE is_active = 1 AND " . $content_filter;
 
 if ($priority_filter) {
     $notices_query .= " AND priority = ?";
@@ -37,14 +41,14 @@ if ($priority_filter) {
 $stmt->execute();
 $notices_result = $stmt->get_result();
 
-// Get notice statistics
+// Get notice statistics with content filtering
 $stats_query = "SELECT 
     COUNT(*) as total,
     SUM(CASE WHEN priority = 'urgent' THEN 1 ELSE 0 END) as urgent,
     SUM(CASE WHEN priority = 'high' THEN 1 ELSE 0 END) as high,
     SUM(CASE WHEN priority = 'medium' THEN 1 ELSE 0 END) as medium,
     SUM(CASE WHEN priority = 'low' THEN 1 ELSE 0 END) as low
-    FROM notices WHERE is_active = 1";
+    FROM notices WHERE is_active = 1 AND " . $content_filter;
 $stats_result = $conn->query($stats_query);
 $stats = $stats_result->fetch_assoc();
 ?>

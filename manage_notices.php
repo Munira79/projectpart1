@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'helper_functions.php';
 
 // Check if user is logged in and has admin/teacher role
 if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'teacher')) {
@@ -11,6 +12,9 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'admin' && $_SES
 $user_id = $_SESSION['user_id'];
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
 
+// Get user's academic info for targeting
+$user_info = getUserInfo($conn, $user_id);
+
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_notice'])) {
@@ -18,10 +22,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_notice'])) {
     $content = $_POST['content'];
     $notice_type = $_POST['notice_type'];
     $priority = $_POST['priority'];
+    $department = $user_info['department'];
+    $batch = $user_info['batch'];
+    $section = $user_info['section'];
     
-    $sql = "INSERT INTO notices (title, content, notice_type, priority, created_by) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO notices (title, content, notice_type, priority, department, batch, section, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssi", $title, $content, $notice_type, $priority, $user_id);
+    $stmt->bind_param("sssssssi", $title, $content, $notice_type, $priority, $department, $batch, $section, $user_id);
     
     if ($stmt->execute()) {
         $_SESSION['success_message'] = "Notice posted successfully!";
@@ -64,9 +71,12 @@ if (isset($_GET['toggle_id'])) {
     exit();
 }
 
-// Fetch all notices
-$notices_query = "SELECT * FROM notices ORDER BY created_at DESC";
-$notices_result = $conn->query($notices_query);
+// Fetch only notices created by the current user
+$notices_query = "SELECT * FROM notices WHERE created_by = ? ORDER BY created_at DESC";
+$stmt = $conn->prepare($notices_query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$notices_result = $stmt->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -206,8 +216,8 @@ $notices_result = $conn->query($notices_query);
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container text-center">
-            <h1 class="display-4 fw-bold mb-3">Manage Notices</h1>
-            <p class="lead">Post and manage important announcements for students.</p>
+            <h1 class="display-4 fw-bold mb-3">Manage Your Notices</h1>
+            <p class="lead">Post and manage important announcements for your department, batch, and section.</p>
         </div>
     </section>
 
@@ -259,6 +269,13 @@ $notices_result = $conn->query($notices_query);
                         <div class="mb-3">
                             <label for="content" class="form-label">Notice Content</label>
                             <textarea class="form-control" id="content" name="content" rows="5" required placeholder="Enter your notice content here..."></textarea>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="ri-information-line me-2"></i>
+                            <strong>Target Audience:</strong> This notice will be visible to students from 
+                            <strong><?php echo $user_info['department'] ?? 'Your Department'; ?></strong>, 
+                            <strong>Batch <?php echo $user_info['batch'] ?? 'Your Batch'; ?></strong>, 
+                            <strong>Section <?php echo $user_info['section'] ?? 'Your Section'; ?></strong>
                         </div>
                         <button type="submit" name="add_notice" class="btn btn-primary">Post Notice</button>
                     </form>

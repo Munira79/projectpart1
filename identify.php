@@ -116,7 +116,7 @@
         </div>
         
         <div class="mt-5">
-            <a href="logout.php" class="btn btn-outline-secondary">Logout</a>
+            <a href="index.php" class="btn btn-outline-secondary">Back</a>
         </div>
     </div>
 

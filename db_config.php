@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root"; // Default XAMPP username
 $password = ""; // Default XAMPP password
-$dbname = "fb-sql";
+$dbname = "fb-sql2";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

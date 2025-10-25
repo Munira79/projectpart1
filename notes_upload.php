@@ -1,6 +1,8 @@
 <?php
 session_start();
 include('db_config.php');
+include('helper_functions.php');
+
 // A user must be logged in and their role must be set as 'admin'
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin')  {
     header('location: login.php'); // Redirect to login if not authenticated or not an admin
@@ -9,6 +11,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin')  {
 
 // Get user ID based on session
 $user_id = $_SESSION['user_id'];
+
+// Get user's academic info for targeting
+$user_info = getUserInfo($conn, $user_id);
 
 // Function to handle file uploads
 if (isset($_POST['upload_notes'])) {
@@ -28,9 +33,13 @@ if (isset($_POST['upload_notes'])) {
     }
 
     if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-        // ✅ FIXED: user_id → uploaded_by
-        $sql = "INSERT INTO notes (uploaded_by, subject, title, description, tags, file_path, file_type) 
-                VALUES ('$user_id', '$subject', '$title', '$description', '$tags', '$target_file', '$file_type')";
+        // ✅ FIXED: user_id → uploaded_by and added department, batch, section
+        $department = $user_info['department'];
+        $batch = $user_info['batch'];
+        $section = $user_info['section'];
+        
+        $sql = "INSERT INTO notes (uploaded_by, subject, title, description, tags, file_path, file_type, department, batch, section) 
+                VALUES ('$user_id', '$subject', '$title', '$description', '$tags', '$target_file', '$file_type', '$department', '$batch', '$section')";
         
         if (mysqli_query($conn, $sql)) {
             $_SESSION['success_message'] = 'Note uploaded successfully! 🎉';
@@ -68,7 +77,7 @@ if (isset($_GET['delete_id'])) {
     exit();
 }
 
-// ✅ FIXED: user_id → uploaded_by
+// ✅ FIXED: user_id → uploaded_by (already filtering by current user)
 $where_clauses = ["uploaded_by='$user_id'"];
 
 if (isset($_GET['search']) && !empty($_GET['search'])) {
@@ -132,8 +141,8 @@ $subjects_result = mysqli_query($conn, $subjects_query);
     <main class="container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="fw-bold mb-0">Notes Manager</h2>
-                <p class="text-muted">Upload, organize, and access your study materials</p>
+                <h2 class="fw-bold mb-0">Your Notes Manager</h2>
+                <p class="text-muted">Upload, organize, and manage study materials for your department, batch, and section</p>
             </div>
             <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#uploadModal">
                 <i class="ri-upload-2-line me-2"></i>Upload Notes
@@ -249,6 +258,13 @@ $subjects_result = mysqli_query($conn, $subjects_query);
                         <div class="mb-3">
                             <label for="fileToUpload" class="form-label">Select File (PDF, DOC, DOCX, JPG, PNG)</label>
                             <input type="file" class="form-control" id="fileToUpload" name="fileToUpload" required>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="ri-information-line me-2"></i>
+                            <strong>Target Audience:</strong> This note will be visible to students from 
+                            <strong><?php echo $user_info['department'] ?? 'Your Department'; ?></strong>, 
+                            <strong>Batch <?php echo $user_info['batch'] ?? 'Your Batch'; ?></strong>, 
+                            <strong>Section <?php echo $user_info['section'] ?? 'Your Section'; ?></strong>
                         </div>
                         <div class="d-grid mt-4">
                             <button type="submit" name="upload_notes" class="btn btn-primary">Upload Note</button>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'helper_functions.php';
 
 // Check if user is logged in and has admin/teacher role
 if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'teacher')) {
@@ -11,6 +12,9 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] !== 'admin' && $_SES
 $user_id = $_SESSION['user_id'];
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
 
+// Get user's academic info for targeting
+$user_info = getUserInfo($conn, $user_id);
+
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_quote'])) {
@@ -18,10 +22,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_quote'])) {
     $author = $_POST['author'];
     $category = $_POST['category'];
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
+    $department = $user_info['department'];
+    $batch = $user_info['batch'];
+    $section = $user_info['section'];
     
-    $sql = "INSERT INTO quotes (quote_text, author, category, is_featured, created_by) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO quotes (quote_text, author, category, is_featured, department, batch, section, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssii", $quote_text, $author, $category, $is_featured, $user_id);
+   $stmt->bind_param("sssisssi", $quote_text, $author, $category, $is_featured, $department, $batch, $section, $user_id);
+
     
     if ($stmt->execute()) {
         $_SESSION['success_message'] = "Quote posted successfully!";
@@ -64,9 +72,12 @@ if (isset($_GET['toggle_featured_id'])) {
     exit();
 }
 
-// Fetch all quotes
-$quotes_query = "SELECT * FROM quotes ORDER BY created_at DESC";
-$quotes_result = $conn->query($quotes_query);
+// Fetch only quotes created by the current user
+$quotes_query = "SELECT * FROM quotes WHERE created_by = ? ORDER BY created_at DESC";
+$stmt = $conn->prepare($quotes_query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$quotes_result = $stmt->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -212,8 +223,8 @@ $quotes_result = $conn->query($quotes_query);
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container text-center">
-            <h1 class="display-4 fw-bold mb-3">Manage Quotes</h1>
-            <p class="lead">Share inspiring quotes and motivational content with students.</p>
+            <h1 class="display-4 fw-bold mb-3">Manage Your Quotes</h1>
+            <p class="lead">Share inspiring quotes and motivational content with your department, batch, and section.</p>
         </div>
     </section>
 
@@ -268,6 +279,13 @@ $quotes_result = $conn->query($quotes_query);
                                     Mark as Featured Quote
                                 </label>
                             </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="ri-information-line me-2"></i>
+                            <strong>Target Audience:</strong> This quote will be visible to students from 
+                            <strong><?php echo $user_info['department'] ?? 'Your Department'; ?></strong>, 
+                            <strong>Batch <?php echo $user_info['batch'] ?? 'Your Batch'; ?></strong>, 
+                            <strong>Section <?php echo $user_info['section'] ?? 'Your Section'; ?></strong>
                         </div>
                         <button type="submit" name="add_quote" class="btn btn-primary">Add Quote</button>
                     </form>

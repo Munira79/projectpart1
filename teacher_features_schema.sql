@@ -1,7 +1,7 @@
 -- Additional tables for teacher features
 -- Run this after the main schema
 
-USE `fb-sql`;
+USE `fb-sql2`;
 
 -- =============================================
 -- 1. ATTENDANCE TABLE
@@ -103,3 +103,5 @@ CREATE INDEX idx_assignments_due_date ON assignments(due_date);
 CREATE INDEX idx_teacher_work_teacher_id ON teacher_work_sessions(teacher_id);
 CREATE INDEX idx_teacher_work_date ON teacher_work_sessions(session_date);
 CREATE INDEX idx_teacher_work_subject ON teacher_work_sessions(subject);
+
+

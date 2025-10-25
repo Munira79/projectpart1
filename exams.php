@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'helper_functions.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -11,13 +12,15 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
 
+// Get content filter for user's department, batch, section
+$content_filter = getContentFilter($conn, $user_id);
 
-// Fetch all upcoming exams
-$exams_query = "SELECT * FROM exams WHERE exam_date >= CURDATE() AND status = 'upcoming' ORDER BY exam_date ASC, exam_time ASC";
+// Fetch all upcoming exams with content filtering
+$exams_query = "SELECT * FROM exams WHERE exam_date >= CURDATE() AND status = 'upcoming' AND " . $content_filter . " ORDER BY exam_date ASC, exam_time ASC";
 $exams_result = $conn->query($exams_query);
 
-// Fetch all exams (for history)
-$all_exams_query = "SELECT * FROM exams ORDER BY exam_date DESC, exam_time DESC";
+// Fetch all exams (for history) with content filtering
+$all_exams_query = "SELECT * FROM exams WHERE " . $content_filter . " ORDER BY exam_date DESC, exam_time DESC";
 $all_exams_result = $conn->query($all_exams_query);
 ?>
 <!DOCTYPE html>

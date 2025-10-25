@@ -139,6 +139,9 @@ $work_count = $work_result->fetch_assoc()['count'];
                 </div>
                 
                 <nav class="nav flex-column px-3">
+                    <a class="nav-link" href="profile.php">
+                        <i class="ri-file-list-line me-2"></i> Profile
+                    </a>
                     <a class="nav-link active" href="teacher_dashboard.php">
                         <i class="ri-dashboard-line me-2"></i> Dashboard
                     </a>

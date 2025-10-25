@@ -193,8 +193,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['change_password'])) {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo $user_role === 'student' ? 'student_dashboard.php' : 'admin_dashboard.php'; ?>">Dashboard</a>
-                    </li>
+  <a class="nav-link" href="<?php
+    if (isset($user_role)) {
+        if ($user_role === 'student') {
+            echo 'student_dashboard.php';
+        } elseif ($user_role === 'admin') { // class representative
+            echo 'admin_dashboard.php';
+        } elseif ($user_role === 'teacher') {
+            echo 'teacher_dashboard.php';
+        } else {
+            echo 'login.php'; // fallback if role unknown
+        }
+    } else {
+        echo 'login.php'; // fallback if role not set
+    }
+  ?>">Dashboard</a>
+</li>
+
                     <li class="nav-item">
                         <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
                     </li>

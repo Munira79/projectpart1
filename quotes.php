@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_config.php';
+include 'helper_functions.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -10,6 +11,9 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : $_SESSION['user_email'];
+
+// Get content filter for user's department, batch, section
+$content_filter = getContentFilter($conn, $user_id);
 
 
 // Handle adding to favorites
@@ -50,14 +54,14 @@ if (isset($_GET['unfavorite_id'])) {
 $category_filter = isset($_GET['category']) ? $_GET['category'] : '';
 $show_favorites = isset($_GET['favorites']) ? $_GET['favorites'] : '';
 
-// Build query
+// Build query with content filtering
 $quotes_query = "SELECT q.*, uf.id as is_favorite FROM quotes q 
                  LEFT JOIN user_favorites uf ON q.id = uf.quote_id AND uf.user_id = ?";
 
 if ($show_favorites) {
-    $quotes_query .= " WHERE uf.id IS NOT NULL";
+    $quotes_query .= " WHERE uf.id IS NOT NULL AND " . $content_filter;
 } else {
-    $quotes_query .= " WHERE 1=1";
+    $quotes_query .= " WHERE " . $content_filter;
 }
 
 if ($category_filter) {

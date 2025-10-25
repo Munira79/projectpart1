@@ -1,14 +1,21 @@
 <?php
 session_start();
 include('db_config.php');
+include('helper_functions.php');
+
 // A user must be logged in to view notes
 if (!isset($_SESSION['user_id'])) {
     header('location: login.php');
     exit();
 }
 
+$user_id = $_SESSION['user_id'];
+
+// Get content filter for user's department, batch, section
+$content_filter = getContentFilter($conn, $user_id);
+
 // Fetch all notes with search/filter functionality
-$where_clauses = ["1"];
+$where_clauses = [$content_filter];
 
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search = mysqli_real_escape_string($conn, $_GET['search']);

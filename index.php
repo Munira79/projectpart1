@@ -314,7 +314,7 @@
         Join StudyHub today and discover a smarter way to learn, track, and succeed in your academic journey.
       </p>
       <a href="register.php" class="btn btn-primary me-2">Get Started Free</a>
-      <a href="demo.php" class="btn btn-outline-primary">View Demo</a>
+      <a href="view_demo.php" class="btn btn-outline-primary">View Demo</a>
     </div>
   </section>
 
